@@ -1,0 +1,25 @@
+#!/usr/bin/env sh
+
+COMMIT_MSG=$(head -1 "$1")
+COMMIT_REGEX="^(feat|fix|ci|chore|docs|test|style|refactor|perf|build|revert)(\(.+?\))?: .{1,}$"
+LENGTH_REGEX="^.{1,88}$"
+
+# Check commit message format
+if ! echo "$COMMIT_MSG" | grep -qE "$COMMIT_REGEX"; then
+    echo "❌ Invalid commit format: '$COMMIT_MSG'"
+    echo ""
+    echo "Expected: <type>[scope]: <description>"
+    echo "💡 Types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+    echo ""
+    exit 1
+fi
+
+# Check commit message length
+if ! echo "$COMMIT_MSG" | grep -qE "$LENGTH_REGEX"; then
+    CURRENT_LENGTH=$(echo "$COMMIT_MSG" | wc -c | tr -d ' ')
+    echo "❌ Commit message too long: ${CURRENT_LENGTH}/88 characters"
+    echo "💡 Keep it concise - use commit body for details"
+    exit 1
+fi
+
+echo "✅ Commit format valid" 
