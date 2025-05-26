@@ -1,12 +1,30 @@
 {
-  "name": "nextjs",
+  "name": "portfolio-nextjs",
   "version": "0.1.0",
-  "private": true,
+  "description": "Nolin D Naidoo's personal website",
+  "author": {
+    "name": "Nolin D Naidoo",
+    "email": "nolin@nolindnaidoo.com",
+    "url": "https://nolindnaidoo.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nolindnaidoo/portfolio-nextjs"
+  },
+  "homepage": "https://nolindnaidoo.com",
+  "keywords": [
+    "nolin",
+    "nolindnaidoo"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "clean:all": "rm -rf .next out dist node_modules && bun install",
+    "prepare": "husky"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.1",
@@ -25,6 +43,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.3.2",
+    "husky": "^9.1.7",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.0",
     "typescript": "^5"

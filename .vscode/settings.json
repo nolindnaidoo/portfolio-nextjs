@@ -1,0 +1,52 @@
+{
+  "workbench.colorTheme": "Tokyo Night Ported Nvim",
+  "workbench.startupEditor": "none",
+  "workbench.editor.closeEmptyGroups": false,
+  "explorer.confirmDelete": false,
+  "explorer.confirmDragAndDrop": false,
+  "editor.minimap.enabled": false,
+  "editor.inlineSuggest.enabled": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
+  "editor.wordWrap": "on",
+  "editor.codeActionsOnSave": [
+    "source.addMissingImports",
+    "source.organizeImports",
+    "source.fixAll.eslint",
+    "source.formatDocument"
+  ],
+  "eslint.enable": true,
+  "eslint.probe": ["javascript", "javascriptreact"],
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "npm.enableRunFromFolder": true,
+  "npm.scriptExplorerAction": "run",
+  "[python]": {
+    "editor.formatOnType": true
+  },
+  "search.exclude": {
+    ".vscode": true,
+    "etc": true,
+    "node*": true,
+    "target": true
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "typescript.tsdk": "./node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "typescript.inlayHints.enumMemberValues.enabled": true,
+  "javascript.inlayHints.variableTypes.enabled": true,
+  "typescript.surveys.enabled": false,
+  "typescript.suggest.completeFunctionCalls": true,
+  "typescript.inlayHints.propertyDeclarationTypes.enabled": true,
+  "typescript.inlayHints.functionLikeReturnTypes.enabled": true,
+  "typescript.inlayHints.parameterNames.enabled": "literals",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact"]
+}
