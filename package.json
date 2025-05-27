@@ -1,6 +1,6 @@
 {
   "name": "portfolio-nextjs",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Nolin D Naidoo's personal website",
   "author": {
     "name": "Nolin D Naidoo",
@@ -23,7 +23,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "clean:all": "rm -rf .next out dist node_modules && bun install",
+    "clean": "rm -rf .next out dist node_modules && bun install",
     "prepare": "husky"
   },
   "dependencies": {
