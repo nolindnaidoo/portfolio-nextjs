@@ -1,13 +1,28 @@
-export default function HomeSection() {
+'use client'
+
+import {
+  HomeAvatar,
+  HomeDescription,
+  HomeHeading,
+  HomeLinks,
+  staggerContainerVariants,
+} from '@/components/home'
+import { motion } from 'framer-motion'
+
+export default function Home() {
   return (
-    <div className="flex flex-col p-6 min-h-full">
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <p className="text-muted-foreground">
-            This is a placeholder for the home component.
-          </p>
-        </div>
+    <motion.div
+      className="space-y-12"
+      variants={staggerContainerVariants}
+      initial="initial"
+      animate="animate"
+    >
+      <div className="text-center space-y-8">
+        <HomeAvatar />
+        <HomeHeading />
+        <HomeLinks />
+        <HomeDescription />
       </div>
-    </div>
+    </motion.div>
   )
 }
