@@ -5,7 +5,7 @@ export interface TerminalLine {
   timestamp: Date
 }
 
-export type LeftPanelContent = 'home'
+export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
 
 export interface DeviceInfo {
   browser: string
