@@ -1,97 +1,164 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { getAvailableCommands, type LeftPanelContent } from './commands'
 import { TerminalFooter } from './TerminalFooter'
 import { TerminalHeader } from './TerminalHeader'
-
-import { useBootSequence } from './hooks/useBootSequence'
-import { useCommandExecution } from './hooks/useCommandExecution'
-import { useTerminalState } from './hooks/useTerminalState'
 import { TerminalInput } from './TerminalInput'
-import { TerminalOutput } from './TerminalOutput'
-import type { LeftPanelContent } from './types'
+import {
+  getDeviceInfo,
+  getUserIP,
+  TerminalOutput,
+  type DeviceInfo,
+  type TerminalLine,
+} from './TerminalOutput'
+
+const TERMINAL_CONFIG = {
+  ARIA_LABEL: 'Interactive terminal interface',
+  CONTAINER_CLASSES: 'flex flex-col h-full',
+} as const
 
 interface TerminalSectionProps {
   onContentChangeAction: (content: LeftPanelContent) => void
 }
 
-export default function TerminalSection({
-  onContentChangeAction,
-}: TerminalSectionProps) {
+export default function TerminalSection({ onContentChangeAction }: TerminalSectionProps) {
   const terminalRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const {
-    lines,
-    currentInput,
-    setCurrentInput,
-    commandHistory,
-    historyIndex,
-    setHistoryIndex,
-    setIsTyping,
-    currentContent,
-    userIP,
-    setUserIP,
-    deviceInfo,
-    setDeviceInfo,
-    isBooting,
-    setIsBooting,
-    showInput,
-    setShowInput,
-    addLine,
-    clearLines,
-    handleContentChange,
-    addToCommandHistory,
-  } = useTerminalState(onContentChangeAction)
-
-  const { runBootSequence } = useBootSequence({
-    addLine,
-    setIsBooting,
-    setShowInput,
-    setUserIP,
-    setDeviceInfo,
+  const [lines, setLines] = useState<TerminalLine[]>([])
+  const [currentInput, setCurrentInput] = useState('')
+  const [commandHistory, setCommandHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [currentContent, setCurrentContent] = useState<LeftPanelContent>('home')
+  const [userIP, setUserIP] = useState<string>('visitor')
+  const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
+    browser: 'unknown',
+    device: 'unknown',
+    userAgent: 'unknown',
   })
+  const [isBooting, setIsBooting] = useState(true)
+  const [showInput, setShowInput] = useState(false)
 
-  const { executeCommand } = useCommandExecution({
-    addLine,
-    clearLines,
-    handleContentChange,
-    currentContent,
-    setIsTyping,
-    addToCommandHistory,
-  })
-
-  // Auto-focus input when component mounts and boot is complete
-  useEffect(() => {
-    if (inputRef.current && showInput) {
-      inputRef.current.focus()
+  const addLine = useCallback((type: TerminalLine['type'], content: string) => {
+    const newLine: TerminalLine = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      type,
+      content,
+      timestamp: new Date(),
     }
-  }, [showInput])
+    setLines((prev) => [...prev, newLine])
+  }, [])
 
-  // Start boot sequence on component mount
-  useEffect(() => {
-    runBootSequence()
-  }, [runBootSequence])
+  const clearLines = useCallback(() => {
+    setLines([])
+  }, [])
 
-  // Scroll to bottom when new lines are added
-  useEffect(() => {
-    if (terminalRef.current) {
-      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
+  const handleContentChange = useCallback(
+    (content: LeftPanelContent) => {
+      setCurrentContent(content)
+      onContentChangeAction(content)
+    },
+    [onContentChangeAction],
+  )
+
+  const addToCommandHistory = useCallback((command: string) => {
+    setCommandHistory((prev) => [...prev, command])
+    setHistoryIndex(-1)
+  }, [])
+
+  const runBootSequence = useCallback(async () => {
+    const addBootLine = (type: TerminalLine['type'], content: string, delay: number = 0) => {
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          addLine(type, content)
+          resolve()
+        }, delay)
+      })
     }
-  }, [lines])
 
-  // Handle clicking anywhere in terminal to focus input
+    const deviceData = getDeviceInfo()
+    setDeviceInfo(deviceData)
+    const ip = await getUserIP()
+    setUserIP(ip)
+
+    await addBootLine('boot', 'Initializing boot sequence...', 300)
+
+    setIsBooting(false)
+    setShowInput(true)
+  }, [addLine])
+
+  const executeCommand = useCallback(
+    async (command: string) => {
+      const trimmedCommand = command.trim()
+      if (!trimmedCommand) return
+
+      addToCommandHistory(trimmedCommand)
+      addLine('command', `$ ${trimmedCommand}`)
+
+      const commandKey = trimmedCommand.toLowerCase()
+
+      // Brief delay for realistic terminal feel
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      if (commandKey === 'clear') {
+        clearLines()
+      } else {
+        const availableCommands = getAvailableCommands(handleContentChange, currentContent)
+
+        if (availableCommands[commandKey as keyof typeof availableCommands]) {
+          const result = availableCommands[commandKey as keyof typeof availableCommands].execute()
+          result.forEach((line: string) => addLine('output', line))
+        } else {
+          addLine(
+            'error',
+            `Command not found: ${trimmedCommand}. Type "help" for available commands.`,
+          )
+        }
+      }
+    },
+    [addLine, clearLines, handleContentChange, currentContent, addToCommandHistory],
+  )
+
   const handleTerminalClick = () => {
     if (inputRef.current && showInput) {
       inputRef.current.focus()
     }
   }
 
+  useEffect(() => {
+    if (inputRef.current && showInput) {
+      inputRef.current.focus()
+    }
+  }, [showInput])
+
+  useEffect(() => {
+    runBootSequence()
+  }, [runBootSequence])
+
+  // Auto-scroll to show latest output
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight
+    }
+  }, [lines])
+
+  if (!onContentChangeAction) {
+    console.warn('TerminalSection: onContentChangeAction is required')
+    return (
+      <section
+        className={TERMINAL_CONFIG.CONTAINER_CLASSES}
+        aria-label={TERMINAL_CONFIG.ARIA_LABEL}
+      >
+        <div className="flex items-center justify-center h-full text-muted-foreground">
+          Terminal unavailable - missing content handler
+        </div>
+      </section>
+    )
+  }
+
   return (
-    <section
-      className="flex flex-col h-full"
-      aria-label="Interactive terminal interface"
-    >
+    <section className={TERMINAL_CONFIG.CONTAINER_CLASSES} aria-label={TERMINAL_CONFIG.ARIA_LABEL}>
       <TerminalHeader isBooting={isBooting} />
 
       <TerminalOutput

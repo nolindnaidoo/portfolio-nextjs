@@ -1,7 +1,7 @@
 'use client'
 
 import HomeSection from '@/components/home/Home'
-import type { LeftPanelContent } from '@/components/terminal/types'
+import type { LeftPanelContent } from '@/components/terminal/commands'
 import { Card } from '@/components/ui'
 import { useState } from 'react'
 import LeftSide from './LeftSide'

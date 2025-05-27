@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import { getAvailableCommands } from './commands'
-import type { DeviceInfo } from './types'
+import { TERMINAL_STYLES } from './constants'
+import type { DeviceInfo } from './TerminalOutput'
 
 interface TerminalInputProps {
   currentInput: string
@@ -12,19 +13,6 @@ interface TerminalInputProps {
   userIP: string
   deviceInfo: DeviceInfo
   disabled?: boolean
-}
-
-const getPrompt = (userIP: string, deviceInfo: DeviceInfo) => {
-  return (
-    <span className="flex items-center gap-2">
-      <span className="text-emerald-500 font-medium">
-        {userIP}@{deviceInfo.browser}-{deviceInfo.device}
-      </span>
-      <span className="text-muted-foreground/50">:</span>
-      <span className="text-blue-500 font-medium text-sm">~</span>
-      <span className="text-muted-foreground/50">$</span>
-    </span>
-  )
 }
 
 export const TerminalInput = forwardRef<HTMLInputElement, TerminalInputProps>(
@@ -52,9 +40,7 @@ export const TerminalInput = forwardRef<HTMLInputElement, TerminalInputProps>(
         e.preventDefault()
         if (commandHistory.length > 0) {
           const newIndex =
-            historyIndex === -1
-              ? commandHistory.length - 1
-              : Math.max(0, historyIndex - 1)
+            historyIndex === -1 ? commandHistory.length - 1 : Math.max(0, historyIndex - 1)
           setHistoryIndex(newIndex)
           setCurrentInput(commandHistory[newIndex])
         }
@@ -72,10 +58,7 @@ export const TerminalInput = forwardRef<HTMLInputElement, TerminalInputProps>(
         }
       } else if (e.key === 'Tab') {
         e.preventDefault()
-        // Simple autocomplete for commands
-        const availableCommands = Object.keys(
-          getAvailableCommands(() => {}, 'home'),
-        )
+        const availableCommands = Object.keys(getAvailableCommands(() => {}, 'home'))
         const matches = availableCommands.filter((cmd) =>
           cmd.startsWith(currentInput.toLowerCase()),
         )
@@ -86,17 +69,24 @@ export const TerminalInput = forwardRef<HTMLInputElement, TerminalInputProps>(
     }
 
     return (
-      <div className="p-4 pt-2 flex-shrink-0">
-        <div className="flex items-center gap-2 font-mono">
-          {getPrompt(userIP, deviceInfo)}
-          <div className="flex-1 flex items-center ml-2">
+      <div className={TERMINAL_STYLES.INPUT.CONTAINER}>
+        <div className={TERMINAL_STYLES.INPUT.WRAPPER}>
+          <span className={TERMINAL_STYLES.PROMPT.CONTAINER}>
+            <span className={TERMINAL_STYLES.PROMPT.USER}>
+              {userIP}@{deviceInfo.browser}-{deviceInfo.device}
+            </span>
+            <span className={TERMINAL_STYLES.PROMPT.SEPARATOR}>:</span>
+            <span className={TERMINAL_STYLES.PROMPT.PATH}>~</span>
+            <span className={TERMINAL_STYLES.PROMPT.SEPARATOR}>$</span>
+          </span>
+          <div className={TERMINAL_STYLES.INPUT.INPUT_WRAPPER}>
             <input
               ref={ref}
               type="text"
               value={currentInput}
               onChange={(e) => !disabled && setCurrentInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className={`bg-transparent border-none outline-none flex-1 font-mono placeholder-muted-foreground/50 ${
+              className={`${TERMINAL_STYLES.INPUT.INPUT} ${
                 disabled ? 'text-muted-foreground/50' : 'text-foreground'
               }`}
               placeholder={disabled ? 'Initializing...' : ''}
@@ -105,7 +95,7 @@ export const TerminalInput = forwardRef<HTMLInputElement, TerminalInputProps>(
               disabled={disabled}
             />
             <span
-              className={`w-1.5 h-4 ml-1 rounded-sm ${
+              className={`${TERMINAL_STYLES.INPUT.CURSOR} ${
                 disabled ? 'bg-muted-foreground/30' : 'bg-foreground/80'
               }`}
             ></span>

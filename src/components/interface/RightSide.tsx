@@ -1,5 +1,5 @@
 import TerminalSection from '@/components/terminal/Terminal'
-import type { LeftPanelContent } from '@/components/terminal/types'
+import type { LeftPanelContent } from '@/components/terminal/commands'
 
 const CONTAINER_STYLES = {
   MAIN: 'relative h-full bg-gradient-to-bl from-background/95 via-muted/10 to-background/90 border-l border-border/20',

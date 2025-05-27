@@ -1,4 +1,11 @@
-import type { Command, LeftPanelContent } from './types'
+// Navigation content types - defines the available sections
+export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+
+export interface Command {
+  description: string
+  execute: () => string[]
+  category: 'system' | 'navigation' | 'hidden'
+}
 
 export const getAvailableCommands = (
   onContentChangeAction: (content: LeftPanelContent) => void,
@@ -134,7 +141,7 @@ export const getAvailableCommands = (
     },
   },
 
-  // Hidden Commands (not shown in help)
+  // Hidden commands (not shown in help)
   'cd ..': {
     description: 'Navigate back (hidden)',
     category: 'hidden',
