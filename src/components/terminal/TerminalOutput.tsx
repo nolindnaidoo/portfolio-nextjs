@@ -20,7 +20,14 @@ export const getUserIP = async (): Promise<string> => {
     const response = await fetch('https://api.ipify.org?format=json')
     const data = await response.json()
     return data.ip || 'unknown'
-  } catch {
+  } catch (err) {
+    // Import logger functions at the top of the file
+    const { warn } = await import('@/lib')
+    warn('Failed to fetch user IP, using fallback', {
+      component: 'TerminalOutput',
+      action: 'ip_fetch_error',
+      metadata: { error: err instanceof Error ? err.message : 'Unknown error' },
+    })
     // Fallback to a simulated local IP for demo purposes
     return '192.168.1.' + Math.floor(Math.random() * 254 + 1)
   }

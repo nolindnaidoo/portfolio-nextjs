@@ -1,5 +1,6 @@
 'use client'
 
+import { debug, error, info, warn } from '@/lib'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getAvailableCommands, type LeftPanelContent } from './commands'
 import { TerminalFooter } from './TerminalFooter'
@@ -56,10 +57,15 @@ export default function TerminalSection({ onContentChangeAction }: TerminalSecti
 
   const handleContentChange = useCallback(
     (content: LeftPanelContent) => {
+      info('Navigation initiated', {
+        component: 'Terminal',
+        action: 'navigate',
+        metadata: { from: currentContent, to: content },
+      })
       setCurrentContent(content)
       onContentChangeAction(content)
     },
-    [onContentChangeAction],
+    [onContentChangeAction, currentContent],
   )
 
   const addToCommandHistory = useCallback((command: string) => {
@@ -77,21 +83,53 @@ export default function TerminalSection({ onContentChangeAction }: TerminalSecti
       })
     }
 
-    const deviceData = getDeviceInfo()
-    setDeviceInfo(deviceData)
-    const ip = await getUserIP()
-    setUserIP(ip)
+    try {
+      debug('Terminal boot sequence started', {
+        component: 'Terminal',
+        action: 'boot_start',
+      })
 
-    await addBootLine('boot', 'Initializing boot sequence...', 300)
+      const deviceData = getDeviceInfo()
+      setDeviceInfo(deviceData)
+      const ip = await getUserIP()
+      setUserIP(ip)
 
-    setIsBooting(false)
-    setShowInput(true)
+      info('Terminal boot sequence completed', {
+        component: 'Terminal',
+        action: 'boot_complete',
+        metadata: {
+          userIP: ip,
+          browser: deviceData.browser,
+          device: deviceData.device,
+        },
+      })
+
+      await addBootLine('boot', 'Initializing boot sequence...', 300)
+
+      setIsBooting(false)
+      setShowInput(true)
+    } catch (err) {
+      error('Terminal boot sequence failed', {
+        component: 'Terminal',
+        action: 'boot_error',
+        metadata: { error: err instanceof Error ? err.message : 'Unknown error' },
+      })
+      // Continue with fallback values
+      setIsBooting(false)
+      setShowInput(true)
+    }
   }, [addLine])
 
   const executeCommand = useCallback(
     async (command: string) => {
       const trimmedCommand = command.trim()
       if (!trimmedCommand) return
+
+      debug('Command execution started', {
+        component: 'Terminal',
+        action: 'command_execute',
+        metadata: { command: trimmedCommand },
+      })
 
       addToCommandHistory(trimmedCommand)
       addLine('command', `$ ${trimmedCommand}`)
@@ -102,14 +140,31 @@ export default function TerminalSection({ onContentChangeAction }: TerminalSecti
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       if (commandKey === 'clear') {
+        info('Terminal cleared', {
+          component: 'Terminal',
+          action: 'clear',
+        })
         clearLines()
       } else {
         const availableCommands = getAvailableCommands(handleContentChange, currentContent)
 
         if (availableCommands[commandKey as keyof typeof availableCommands]) {
+          info('Command executed successfully', {
+            component: 'Terminal',
+            action: 'command_success',
+            metadata: {
+              command: trimmedCommand,
+              category: availableCommands[commandKey as keyof typeof availableCommands].category,
+            },
+          })
           const result = availableCommands[commandKey as keyof typeof availableCommands].execute()
           result.forEach((line: string) => addLine('output', line))
         } else {
+          warn('Unknown command attempted', {
+            component: 'Terminal',
+            action: 'command_not_found',
+            metadata: { command: trimmedCommand },
+          })
           addLine(
             'error',
             `Command not found: ${trimmedCommand}. Type "help" for available commands.`,
@@ -144,7 +199,11 @@ export default function TerminalSection({ onContentChangeAction }: TerminalSecti
   }, [lines])
 
   if (!onContentChangeAction) {
-    console.warn('TerminalSection: onContentChangeAction is required')
+    warn('Terminal initialization failed - missing required prop', {
+      component: 'Terminal',
+      action: 'initialization',
+      metadata: { missingProp: 'onContentChangeAction' },
+    })
     return (
       <section
         className={TERMINAL_CONFIG.CONTAINER_CLASSES}

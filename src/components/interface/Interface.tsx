@@ -3,7 +3,8 @@
 import HomeSection from '@/components/home/Home'
 import type { LeftPanelContent } from '@/components/terminal/commands'
 import { Card } from '@/components/ui'
-import { useState } from 'react'
+import { debug, info } from '@/lib'
+import { useEffect, useState } from 'react'
 import LeftSide from './LeftSide'
 import RightSide from './RightSide'
 
@@ -60,7 +61,21 @@ interface InterfaceProps {
 export default function Interface({ className = '', initialContent = 'home' }: InterfaceProps) {
   const [currentContent, setCurrentContent] = useState<LeftPanelContent>(initialContent)
 
+  // Log interface initialization only once
+  useEffect(() => {
+    debug('Interface initialized', {
+      component: 'Interface',
+      action: 'initialize',
+      metadata: { initialContent, className },
+    })
+  }, []) // Empty dependency array ensures this runs only once
+
   const handleContentChange = (content: LeftPanelContent) => {
+    info('Interface content changed', {
+      component: 'Interface',
+      action: 'content_change',
+      metadata: { from: currentContent, to: content },
+    })
     setCurrentContent(content)
   }
 

@@ -1,3 +1,5 @@
+import { info } from '@/lib'
+
 // Navigation content types - defines the available sections
 export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
 
@@ -96,6 +98,11 @@ export const getAvailableCommands = (
     description: 'Navigate to home section',
     category: 'navigation',
     execute: () => {
+      info('Navigation command executed', {
+        component: 'Commands',
+        action: 'navigate',
+        metadata: { destination: 'home', from: currentContent },
+      })
       onContentChangeAction('home')
       return ['Navigating to home section...', 'Loading main interface...']
     },
