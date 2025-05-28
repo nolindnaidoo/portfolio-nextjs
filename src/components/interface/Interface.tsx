@@ -3,8 +3,9 @@
 import HomeSection from '@/components/home/Home'
 import type { LeftPanelContent } from '@/components/terminal/commands'
 import { Card } from '@/components/ui'
-import { debug, info } from '@/lib'
-import { useEffect, useState } from 'react'
+import { NavigationProvider, useNavigation } from '@/contexts/NavigationContext'
+import { debug } from '@/lib'
+import { useEffect } from 'react'
 import LeftSide from './LeftSide'
 import RightSide from './RightSide'
 
@@ -59,25 +60,23 @@ interface InterfaceProps {
 }
 
 export default function Interface({ className = '', initialContent = 'home' }: InterfaceProps) {
-  const [currentContent, setCurrentContent] = useState<LeftPanelContent>(initialContent)
+  return (
+    <NavigationProvider initialContent={initialContent}>
+      <InterfaceContent className={className} />
+    </NavigationProvider>
+  )
+}
+
+function InterfaceContent({ className = '' }: { className?: string }) {
+  const { currentContent } = useNavigation()
 
   // Log interface initialization only once
   useEffect(() => {
     debug('Interface initialized', {
       component: 'Interface',
       action: 'initialize',
-      metadata: { initialContent, className },
     })
-  }, []) // Empty dependency array ensures this runs only once
-
-  const handleContentChange = (content: LeftPanelContent) => {
-    info('Interface content changed', {
-      component: 'Interface',
-      action: 'content_change',
-      metadata: { from: currentContent, to: content },
-    })
-    setCurrentContent(content)
-  }
+  }, [])
 
   const CurrentComponent = CONTENT_MAP[currentContent].component
   const currentTitle = CONTENT_MAP[currentContent].title
@@ -98,7 +97,7 @@ export default function Interface({ className = '', initialContent = 'home' }: I
               <LeftSide pageTitle={currentTitle} transitionKey={currentContent}>
                 <CurrentComponent />
               </LeftSide>
-              <RightSide onContentChangeAction={handleContentChange} />
+              <RightSide />
             </section>
           </div>
         </Card>

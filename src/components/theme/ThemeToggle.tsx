@@ -1,8 +1,7 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { useReducedMotion } from '@/hooks'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useMemo, useState } from 'react'
