@@ -19,9 +19,14 @@ export default function TerminalSection() {
   const systemInfo = useSystemInfo()
   const terminalUI = useTerminalUI()
 
+  // Destructure functions to avoid ESLint warnings and unnecessary re-renders
+  const { addLine, clearLines, lines } = terminalCore
+  const { isBooting } = systemInfo
+  const { setShowInput, scrollToBottom } = terminalUI
+
   const commandProcessor = useCommandProcessor({
-    onAddLine: terminalCore.addLine,
-    onClearLines: terminalCore.clearLines,
+    onAddLine: addLine,
+    onClearLines: clearLines,
   })
 
   // Log terminal initialization only once
@@ -34,30 +39,30 @@ export default function TerminalSection() {
 
   // Show input when system finishes booting
   useEffect(() => {
-    if (!systemInfo.isBooting) {
-      terminalUI.setShowInput(true)
+    if (!isBooting) {
+      setShowInput(true)
     }
-  }, [systemInfo.isBooting, terminalUI.setShowInput])
+  }, [isBooting, setShowInput])
 
   // Auto-scroll when new lines are added
   useEffect(() => {
-    terminalUI.scrollToBottom()
-  }, [terminalCore.lines, terminalUI.scrollToBottom])
+    scrollToBottom()
+  }, [lines, scrollToBottom])
 
   // Add boot line when system info is ready
   useEffect(() => {
-    if (!systemInfo.isBooting && terminalCore.lines.length === 0) {
-      terminalCore.addLine('boot', 'System initialized successfully.')
+    if (!isBooting && lines.length === 0) {
+      addLine('boot', 'System initialized successfully.')
     }
-  }, [systemInfo.isBooting, terminalCore.lines.length, terminalCore.addLine])
+  }, [isBooting, lines.length, addLine])
 
   return (
     <section className={TERMINAL_CONFIG.CONTAINER_CLASSES} aria-label={TERMINAL_CONFIG.ARIA_LABEL}>
-      <TerminalHeader isBooting={systemInfo.isBooting} />
+      <TerminalHeader isBooting={isBooting} />
 
       <TerminalOutput
         ref={terminalUI.terminalRef}
-        lines={terminalCore.lines}
+        lines={lines}
         userIP={systemInfo.userIP}
         deviceInfo={systemInfo.deviceInfo}
         onClick={terminalUI.handleTerminalClick}
