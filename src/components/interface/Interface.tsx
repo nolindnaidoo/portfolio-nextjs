@@ -5,7 +5,8 @@ import type { LeftPanelContent } from '@/components/terminal/commands'
 import { Card } from '@/components/ui'
 import { NavigationProvider, useNavigation } from '@/contexts/NavigationContext'
 import { debug } from '@/lib'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { LeftSideErrorBoundary, RightSideErrorBoundary } from '../error'
 import LeftSide from './LeftSide'
 import RightSide from './RightSide'
 
@@ -16,6 +17,21 @@ const CONTAINER_CONFIG = {
     'relative w-full bg-card border border-border/30 shadow-2xl overflow-hidden ring-1 ring-border/10',
   INNER_BORDER_CLASSES: 'absolute inset-[1px] rounded-3xl border border-card/50',
 } as const
+
+// Test error components for demonstration
+function TestLeftError({ shouldError }: { shouldError: boolean }) {
+  if (shouldError) {
+    throw new Error('Test error: Left side error boundary demonstration')
+  }
+  return null
+}
+
+function TestRightError({ shouldError }: { shouldError: boolean }) {
+  if (shouldError) {
+    throw new Error('Test error: Right side error boundary demonstration')
+  }
+  return null
+}
 
 // Placeholder components for future sections
 const AboutSection = () => (
@@ -46,12 +62,57 @@ const ContactSection = () => (
   </div>
 )
 
+// Test section with error triggers
+const TestSection = () => {
+  const [leftError, setLeftError] = useState(false)
+  const [rightError, setRightError] = useState(false)
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-foreground">Error Boundary Testing</h1>
+      <p className="text-muted-foreground">Test the error boundaries to see how they work.</p>
+
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-foreground">Left Side Error</h3>
+          <button
+            onClick={() => setLeftError(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors text-sm font-medium"
+          >
+            Trigger Left Error
+          </button>
+          <p className="text-xs text-muted-foreground">
+            This will break the left panel while keeping the terminal functional.
+          </p>
+        </div>
+
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold text-foreground">Right Side Error</h3>
+          <button
+            onClick={() => setRightError(true)}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-medium"
+          >
+            Trigger Right Error
+          </button>
+          <p className="text-xs text-muted-foreground">
+            This will break the terminal while keeping navigation functional.
+          </p>
+        </div>
+      </div>
+
+      <TestLeftError shouldError={leftError} />
+      <TestRightError shouldError={rightError} />
+    </div>
+  )
+}
+
 const CONTENT_MAP: Record<LeftPanelContent, { component: React.ComponentType; title: string }> = {
   home: { component: HomeSection, title: 'Home' },
   about: { component: AboutSection, title: 'About' },
   projects: { component: ProjectsSection, title: 'Projects' },
   skills: { component: SkillsSection, title: 'Skills' },
   contact: { component: ContactSection, title: 'Contact' },
+  test: { component: TestSection, title: 'Test Errors' },
 }
 
 interface InterfaceProps {
@@ -94,10 +155,15 @@ function InterfaceContent({ className = '' }: { className?: string }) {
 
           <div className="relative h-full">
             <section className="grid md:grid-cols-2 h-full">
-              <LeftSide pageTitle={currentTitle} transitionKey={currentContent}>
-                <CurrentComponent />
-              </LeftSide>
-              <RightSide />
+              <LeftSideErrorBoundary pageTitle={currentTitle}>
+                <LeftSide pageTitle={currentTitle} transitionKey={currentContent}>
+                  <CurrentComponent />
+                </LeftSide>
+              </LeftSideErrorBoundary>
+
+              <RightSideErrorBoundary>
+                <RightSide />
+              </RightSideErrorBoundary>
             </section>
           </div>
         </Card>

@@ -1,7 +1,7 @@
 import { info } from '@/lib'
 
 // Navigation content types - defines the available sections
-export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact' | 'test'
 
 export interface Command {
   description: string
@@ -79,6 +79,7 @@ export const getAvailableCommands = (
         'projects/    - Featured work and case studies',
         'skills/      - Technical expertise and tools',
         'contact/     - Get in touch and connect',
+        'test/        - Error boundary testing',
         '',
         'Use section names as commands to navigate.',
       ]
@@ -139,6 +140,14 @@ export const getAvailableCommands = (
       return ['Navigating to contact section...', 'Loading contact information...']
     },
   },
+  'test': {
+    description: 'Navigate to error testing section',
+    category: 'navigation',
+    execute: () => {
+      onContentChangeAction('test')
+      return ['Navigating to test section...', 'Loading error boundary testing...']
+    },
+  },
   'back': {
     description: 'Go back to home section',
     category: 'navigation',
@@ -149,6 +158,21 @@ export const getAvailableCommands = (
   },
 
   // Hidden commands (not shown in help)
+  'test-terminal-error': {
+    description: 'Trigger terminal error (hidden)',
+    category: 'hidden',
+    execute: () => {
+      if (typeof window !== 'undefined') {
+        const triggerFn = (window as typeof window & { triggerTerminalError?: () => void })
+          .triggerTerminalError
+        if (triggerFn) {
+          setTimeout(triggerFn, 500)
+          return ['Triggering terminal error in 0.5 seconds...']
+        }
+      }
+      return ['Error trigger not available']
+    },
+  },
   'cd ..': {
     description: 'Navigate back (hidden)',
     category: 'hidden',

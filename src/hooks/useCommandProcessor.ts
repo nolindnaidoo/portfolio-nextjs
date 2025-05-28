@@ -21,21 +21,19 @@ export function useCommandProcessor({ onAddLine, onClearLines }: UseCommandProce
   const executeCommand = useCallback(
     async (command: string) => {
       const trimmedCommand = command.trim()
+
       if (!trimmedCommand) return
 
       debug('Command execution started', {
         component: 'useCommandProcessor',
-        action: 'command_execute',
+        action: 'command_start',
         metadata: { command: trimmedCommand },
       })
 
-      addToHistory(trimmedCommand)
       onAddLine('command', `$ ${trimmedCommand}`)
+      addToHistory(trimmedCommand)
 
       const commandKey = trimmedCommand.toLowerCase()
-
-      // Brief delay for realistic terminal feel
-      await new Promise((resolve) => setTimeout(resolve, 100))
 
       if (commandKey === 'clear') {
         info('Terminal cleared', {

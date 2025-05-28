@@ -1,64 +1,76 @@
 'use client'
 
+import {
+  TerminalFooter,
+  TerminalHeader,
+  TerminalInput,
+  TerminalOutput,
+} from '@/components/terminal'
 import { useCommandProcessor, useSystemInfo, useTerminalCore, useTerminalUI } from '@/hooks'
-import { debug } from '@/lib'
-import { useEffect } from 'react'
-import { TerminalFooter } from './TerminalFooter'
-import { TerminalHeader } from './TerminalHeader'
-import { TerminalInput } from './TerminalInput'
-import { TerminalOutput } from './TerminalOutput'
-
-const TERMINAL_CONFIG = {
-  ARIA_LABEL: 'Interactive terminal interface',
-  CONTAINER_CLASSES: 'flex flex-col h-full',
-} as const
+import { info } from '@/lib'
+import { useEffect, useRef } from 'react'
 
 export default function TerminalSection() {
   // Separated concerns via custom hooks
-  const terminalCore = useTerminalCore()
+  const { lines, addLine, clearLines } = useTerminalCore()
   const systemInfo = useSystemInfo()
   const terminalUI = useTerminalUI()
 
-  // Destructure functions to avoid ESLint warnings and unnecessary re-renders
-  const { addLine, clearLines, lines } = terminalCore
-  const { isBooting } = systemInfo
-  const { setShowInput, scrollToBottom } = terminalUI
+  // Track if boot sequence has run to prevent duplicates
+  const bootSequenceRun = useRef(false)
 
   const commandProcessor = useCommandProcessor({
     onAddLine: addLine,
     onClearLines: clearLines,
   })
 
-  // Log terminal initialization only once
+  // Stable boot sequence - runs only once when system is ready
   useEffect(() => {
-    debug('Terminal initialized with separated concerns', {
-      component: 'Terminal',
-      action: 'initialize',
-    })
-  }, [])
+    if (
+      systemInfo.deviceInfo.browser &&
+      systemInfo.deviceInfo.device &&
+      systemInfo.userIP &&
+      !systemInfo.isBooting &&
+      !bootSequenceRun.current
+    ) {
+      bootSequenceRun.current = true
 
-  // Show input when system finishes booting
-  useEffect(() => {
-    if (!isBooting) {
-      setShowInput(true)
+      const bootLines = [
+        'Initializing Nolin Naidoo Portfolio Terminal...',
+        '',
+        `Browser: ${systemInfo.deviceInfo.browser}`,
+        `Device: ${systemInfo.deviceInfo.device}`,
+        `IP: ${systemInfo.userIP}`,
+        '',
+        'Boot sequence complete. Type "help" for available commands.',
+        '',
+      ]
+
+      bootLines.forEach((line, index) => {
+        setTimeout(() => {
+          addLine('boot', line)
+          if (index === bootLines.length - 1) {
+            terminalUI.setShowInput(true)
+            info('Terminal boot sequence completed', {
+              component: 'TerminalSection',
+              action: 'boot_complete',
+            })
+          }
+        }, index * 100)
+      })
     }
-  }, [isBooting, setShowInput])
-
-  // Auto-scroll when new lines are added
-  useEffect(() => {
-    scrollToBottom()
-  }, [lines, scrollToBottom])
-
-  // Add boot line when system info is ready
-  useEffect(() => {
-    if (!isBooting && lines.length === 0) {
-      addLine('boot', 'System initialized successfully.')
-    }
-  }, [isBooting, lines.length, addLine])
+  }, [
+    systemInfo.deviceInfo.browser,
+    systemInfo.deviceInfo.device,
+    systemInfo.userIP,
+    systemInfo.isBooting,
+    addLine,
+    terminalUI,
+  ])
 
   return (
-    <section className={TERMINAL_CONFIG.CONTAINER_CLASSES} aria-label={TERMINAL_CONFIG.ARIA_LABEL}>
-      <TerminalHeader isBooting={isBooting} />
+    <section className="flex flex-col h-full" aria-label="Interactive terminal interface">
+      <TerminalHeader isBooting={systemInfo.isBooting} />
 
       <TerminalOutput
         ref={terminalUI.terminalRef}
