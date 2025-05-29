@@ -1,4 +1,13 @@
-import type { Command, LeftPanelContent } from './types'
+import { info } from '@/lib'
+
+// Navigation content types - defines the available sections
+export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+
+export interface Command {
+  description: string
+  execute: () => string[]
+  category: 'system' | 'navigation' | 'hidden'
+}
 
 export const getAvailableCommands = (
   onContentChangeAction: (content: LeftPanelContent) => void,
@@ -9,13 +18,8 @@ export const getAvailableCommands = (
     description: 'Show available commands',
     category: 'system',
     execute: () => {
-      const commands = getAvailableCommands(
-        onContentChangeAction,
-        currentContent,
-      )
-      const systemCommands = Object.entries(commands).filter(
-        ([, cmd]) => cmd.category === 'system',
-      )
+      const commands = getAvailableCommands(onContentChangeAction, currentContent)
+      const systemCommands = Object.entries(commands).filter(([, cmd]) => cmd.category === 'system')
       const navigationCommands = Object.entries(commands).filter(
         ([, cmd]) => cmd.category === 'navigation',
       )
@@ -23,14 +27,10 @@ export const getAvailableCommands = (
       return [
         '',
         'System Commands:',
-        ...systemCommands.map(
-          ([name, cmd]) => `  ${name.padEnd(12)} - ${cmd.description}`,
-        ),
+        ...systemCommands.map(([name, cmd]) => `  ${name.padEnd(12)} - ${cmd.description}`),
         '',
         'Navigation Commands:',
-        ...navigationCommands.map(
-          ([name, cmd]) => `  ${name.padEnd(12)} - ${cmd.description}`,
-        ),
+        ...navigationCommands.map(([name, cmd]) => `  ${name.padEnd(12)} - ${cmd.description}`),
         '',
         'Use Tab for autocomplete, ↑/↓ for command history',
       ]
@@ -69,12 +69,16 @@ export const getAvailableCommands = (
     description: 'List available sections',
     category: 'system',
     execute: () => {
-      const currentPath = '/nolindnaidoo/home'
+      const currentPath = `/nolindnaidoo/${currentContent}`
       return [
         `Current location: ${currentPath}`,
         '',
         'Available sections:',
         'home/        - Main portfolio interface',
+        'about/       - Personal background and story',
+        'projects/    - Featured work and case studies',
+        'skills/      - Technical expertise and tools',
+        'contact/     - Get in touch and connect',
         '',
         'Use section names as commands to navigate.',
       ]
@@ -84,7 +88,7 @@ export const getAvailableCommands = (
     description: 'Print current working directory',
     category: 'system',
     execute: () => {
-      const currentPath = '/nolindnaidoo/home'
+      const currentPath = `/nolindnaidoo/${currentContent}`
       return [currentPath]
     },
   },
@@ -94,8 +98,45 @@ export const getAvailableCommands = (
     description: 'Navigate to home section',
     category: 'navigation',
     execute: () => {
+      info('Navigation command executed', {
+        component: 'Commands',
+        action: 'navigate',
+        metadata: { destination: 'home', from: currentContent },
+      })
       onContentChangeAction('home')
       return ['Navigating to home section...', 'Loading main interface...']
+    },
+  },
+  'about': {
+    description: 'Navigate to about section',
+    category: 'navigation',
+    execute: () => {
+      onContentChangeAction('about')
+      return ['Navigating to about section...', 'Loading personal background...']
+    },
+  },
+  'projects': {
+    description: 'Navigate to projects section',
+    category: 'navigation',
+    execute: () => {
+      onContentChangeAction('projects')
+      return ['Navigating to projects section...', 'Loading featured work...']
+    },
+  },
+  'skills': {
+    description: 'Navigate to skills section',
+    category: 'navigation',
+    execute: () => {
+      onContentChangeAction('skills')
+      return ['Navigating to skills section...', 'Loading technical expertise...']
+    },
+  },
+  'contact': {
+    description: 'Navigate to contact section',
+    category: 'navigation',
+    execute: () => {
+      onContentChangeAction('contact')
+      return ['Navigating to contact section...', 'Loading contact information...']
     },
   },
   'back': {
@@ -107,7 +148,22 @@ export const getAvailableCommands = (
     },
   },
 
-  // Hidden Commands (not shown in help)
+  // Hidden commands (not shown in help)
+  'test-terminal-error': {
+    description: 'Trigger terminal error (hidden)',
+    category: 'hidden',
+    execute: () => {
+      if (typeof window !== 'undefined') {
+        const triggerFn = (window as typeof window & { triggerTerminalError?: () => void })
+          .triggerTerminalError
+        if (triggerFn) {
+          setTimeout(triggerFn, 500)
+          return ['Triggering terminal error in 0.5 seconds...']
+        }
+      }
+      return ['Error trigger not available']
+    },
+  },
   'cd ..': {
     description: 'Navigate back (hidden)',
     category: 'hidden',

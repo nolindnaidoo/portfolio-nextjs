@@ -1,4 +1,13 @@
-export { default as HomeSection } from './home/Home'
+// Error Boundaries
+export * from './error'
+
+// Layout Components
 export { default as Interface } from './interface/Interface'
-export { default as TerminalSection } from './terminal/Terminal'
-export { ThemeProvider, ThemeToggle } from './theme'
+export { default as LeftSide } from './interface/LeftSide'
+export { default as RightSide } from './interface/RightSide'
+
+// Terminal Components
+export { default as Terminal } from './terminal/Terminal'
+
+// UI Components
+export * from './ui/button'

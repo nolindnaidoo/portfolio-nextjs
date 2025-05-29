@@ -1,5 +1,6 @@
 import { fadeInUpVariants } from '@/components/home/animations'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { warn } from '@/lib'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useState } from 'react'
@@ -49,7 +50,17 @@ export default function HomeAvatar({ className = 'relative inline-block' }: Home
     <motion.div className={className} variants={fadeInUpVariants}>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-full blur-2xl scale-125 opacity-60" />
       <Avatar className="relative size-32 md:size-40 border-4 border-background shadow-2xl ring-4 ring-border/20">
-        <AvatarContent imageError={imageError} onImageError={() => setImageError(true)} />
+        <AvatarContent
+          imageError={imageError}
+          onImageError={() => {
+            warn('Avatar image failed to load, using fallback', {
+              component: 'HomeAvatar',
+              action: 'image_load_error',
+              metadata: { src: '/avatar.webp', fallback: 'initials' },
+            })
+            setImageError(true)
+          }}
+        />
       </Avatar>
     </motion.div>
   )
