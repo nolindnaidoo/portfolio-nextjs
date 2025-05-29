@@ -86,7 +86,14 @@ export default function GlobalError({
                             Still having issues? Let&apos;s connect directly:
                           </p>
                           <button
-                            onClick={() => window.open('mailto:nolin@example.com', '_blank')}
+                            onClick={() =>
+                              window.open(
+                                `mailto:${
+                                  process.env.NEXT_PUBLIC_EMAIL || 'nolin@nolindnaidoo.com'
+                                }`,
+                                '_blank',
+                              )
+                            }
                             className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                           >
                             Contact Me
