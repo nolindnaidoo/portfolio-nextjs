@@ -1,6 +1,10 @@
-// Re-export utilities
+// Core utilities
 export { cn } from './utils'
 
-// Re-export logging system
+// Logger utilities
 export { debug, error, info, log, logger, warn } from './logger'
 export type { LogContext, LogLevel } from './logger'
+
+// Error utilities
+export { ERROR_ACTIONS, errorUtils, handleError, logError, throwError } from './error'
+export type { ErrorAction, ErrorContext } from './error'

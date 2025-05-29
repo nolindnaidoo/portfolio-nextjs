@@ -1,7 +1,7 @@
 import { info } from '@/lib'
 
 // Navigation content types - defines the available sections
-export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact' | 'test'
+export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
 
 export interface Command {
   description: string
@@ -79,7 +79,6 @@ export const getAvailableCommands = (
         'projects/    - Featured work and case studies',
         'skills/      - Technical expertise and tools',
         'contact/     - Get in touch and connect',
-        'test/        - Error boundary testing',
         '',
         'Use section names as commands to navigate.',
       ]
@@ -138,14 +137,6 @@ export const getAvailableCommands = (
     execute: () => {
       onContentChangeAction('contact')
       return ['Navigating to contact section...', 'Loading contact information...']
-    },
-  },
-  'test': {
-    description: 'Navigate to error testing section',
-    category: 'navigation',
-    execute: () => {
-      onContentChangeAction('test')
-      return ['Navigating to test section...', 'Loading error boundary testing...']
     },
   },
   'back': {

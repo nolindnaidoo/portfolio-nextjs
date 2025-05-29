@@ -1,2 +1,2 @@
-export { LeftSideErrorBoundary } from './LeftSideErrorBoundary'
-export { RightSideErrorBoundary } from './RightSideErrorBoundary'
+// Unified error boundary
+export { ErrorBoundary } from './ErrorBoundary'
