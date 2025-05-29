@@ -1,350 +1,637 @@
-# Terminal Module
+# Terminal Components
 
-A fully interactive terminal interface for portfolio navigation with realistic command execution, device detection, and smooth animations.
+Interactive terminal interface with realistic command execution, device detection, and smooth animations.
 
-## Architecture
+## 🎯 Quick Decision
 
-The terminal module follows a **simple, direct state management pattern** consistent with the rest of the application:
+**Need terminal functionality?**
 
-```tsx
-// Simple useState pattern (no custom hooks)
-const [lines, setLines] = useState<TerminalLine[]>([])
-const [currentInput, setCurrentInput] = useState('')
-const [commandHistory, setCommandHistory] = useState<string[]>([])
-// ... more direct state
-
-// Inline functions with useCallback
-const executeCommand = useCallback(
-  async (command: string) => {
-    // Command execution logic
-  },
-  [dependencies],
-)
+```
+├─ Complete terminal interface? → Terminal (main component)
+├─ Custom command output? → TerminalOutput
+├─ Custom input handling? → TerminalInput
+├─ Terminal header/footer? → TerminalHeader/TerminalFooter
+└─ Add custom commands? → commands.ts
 ```
 
-## Components
-
-### `Terminal.tsx`
-
-The main terminal component that orchestrates all terminal functionality.
-
-**Architecture:**
+## 🚀 Quick Start
 
 ```tsx
-// Constants first
-const TERMINAL_CONFIG = { ... }
+import Terminal from '@/components/terminal'
 
-// Main export with direct state management
-export default function TerminalSection({ onContentChangeAction }) {
-  // Direct useState calls (no custom hooks)
-  const [lines, setLines] = useState<TerminalLine[]>([])
-
-  // Inline functions
-  const executeCommand = useCallback(async (command) => { ... }, [])
-  const runBootSequence = useCallback(async () => { ... }, [])
-
-  return <section>...</section>
+// Basic terminal interface
+function Portfolio() {
+  return (
+    <div className="h-screen">
+      <Terminal />
+    </div>
+  )
 }
 ```
 
-**Props:**
+## 📊 Component Overview
 
-- `onContentChangeAction: (content: LeftPanelContent) => void` - Handler for navigation commands
+| Component          | Purpose                 | Key Features                          |
+| ------------------ | ----------------------- | ------------------------------------- |
+| **Terminal**       | Main terminal interface | Boot sequence, command processing     |
+| **TerminalOutput** | Display terminal output | Syntax highlighting, device detection |
+| **TerminalInput**  | Handle user input       | History, autocomplete, keyboard nav   |
+| **TerminalHeader** | Terminal header section | Title, theme toggle                   |
+| **TerminalFooter** | Help text section       | Usage instructions                    |
 
-**Features:**
+---
 
-- **Direct State Management**: All state managed with simple `useState` calls
-- **Boot Sequence**: Realistic terminal initialization with device detection
-- **Command Execution**: Full command parsing and execution system
-- **Auto-scroll**: Automatically scrolls to show latest output
-- **Focus Management**: Auto-focuses input when ready
+## 📋 Common Patterns
 
-### `TerminalOutput.tsx`
-
-Displays terminal output with syntax highlighting and contains core terminal utilities.
-
-**Architecture:**
+### Basic Terminal
 
 ```tsx
-// Types and utilities first
-export interface DeviceInfo { ... }
-export interface TerminalLine { ... }
-export const getUserIP = async (): Promise<string> => { ... }
-export const getDeviceInfo = (): DeviceInfo => { ... }
+import Terminal from '@/components/terminal'
 
-// Main component
-export const TerminalOutput = forwardRef<HTMLDivElement, Props>(({ ... }) => {
-  // Nested component for line rendering
-  const TerminalLine = ({ line }) => { ... }
-
-  return <div>...</div>
-})
+// Full terminal with all features
+;<Terminal />
 ```
 
-**Props:**
-
-- `lines: TerminalLine[]` - Array of terminal output lines
-- `userIP: string` - User's IP address for prompt display
-- `deviceInfo: DeviceInfo` - Device information for prompt display
-- `onClick: () => void` - Handler for terminal clicks (focus management)
-
-**Features:**
-
-- **Syntax Highlighting**: Different colors for commands, output, errors, etc.
-- **Device Detection**: Smart browser and OS detection
-- **IP Detection**: Real IP fetching with fallback
-- **Prompt Generation**: Realistic terminal prompt display
-
-### `TerminalInput.tsx`
-
-Handles user input with command history, autocomplete, and keyboard navigation.
-
-**Props:**
-
-- `currentInput: string` - Current input value
-- `setCurrentInput: (value: string) => void` - Input setter
-- `commandHistory: string[]` - Array of previous commands
-- `historyIndex: number` - Current position in history
-- `setHistoryIndex: (value: number) => void` - History position setter
-- `executeCommand: (command: string) => void` - Command execution handler
-- `userIP: string` - User's IP for prompt
-- `deviceInfo: DeviceInfo` - Device info for prompt
-- `disabled?: boolean` - Whether input is disabled during boot
-
-**Features:**
-
-- **Command History**: ↑/↓ arrow key navigation through previous commands
-- **Tab Autocomplete**: Auto-completes partial command names
-- **Realistic Prompt**: Shows `user@browser-device:~$` format
-- **Disabled State**: Shows "Initializing..." during boot sequence
-
-### `TerminalHeader.tsx`
-
-Terminal header with title and theme toggle.
-
-**Props:**
-
-- `isBooting: boolean` - Whether terminal is in boot state
-
-**Features:**
-
-- **Dynamic Title**: "Security Terminal" during boot, "Portfolio Terminal" when ready
-- **Theme Toggle**: Integrated theme switcher
-- **Terminal Icon**: Visual terminal indicator
-
-### `TerminalFooter.tsx`
-
-Help text for terminal usage.
-
-**Features:**
-
-- **Usage Instructions**: Tab autocomplete, arrow key history, help command
-- **Consistent Styling**: Matches terminal aesthetic
-
-## Commands System
-
-### `commands.ts`
-
-Defines all available terminal commands with categories and execution logic.
-
-**Architecture:**
+### Available Commands
 
 ```tsx
-// Types first
-export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+// System commands
+help        // Show available commands
+clear       // Clear terminal screen
+whoami      // Display user information
+status      // Show system status
+ls          // List available sections
+pwd         // Print current directory
 
-// Command factory function
-export const getAvailableCommands = (
-  onContentChangeAction: (content: LeftPanelContent) => void,
-  currentContent: LeftPanelContent,
-): Record<string, Command> => ({
-  // System commands
-  'help': { description: '...', category: 'system', execute: () => [...] },
+// Navigation commands
+home        // Navigate to home section
+about       // Navigate to about section
+projects    // Navigate to projects section
+skills      // Navigate to skills section
+contact     // Navigate to contact section
+back        // Return to home section
 
-  // Navigation commands
-  'home': { description: '...', category: 'navigation', execute: () => [...] },
-
-  // Hidden commands (not shown in help)
-  'sudo': { description: '...', category: 'hidden', execute: () => [...] },
-})
+// Hidden commands (try these!)
+sudo        // Permission denied
+exit        // Permission denied
+cd ..       // Navigate back
 ```
 
-**Command Categories:**
+### Keyboard Navigation
 
-- **`system`**: Help, status, file operations (shown in help)
-- **`navigation`**: Section navigation commands (shown in help)
-- **`hidden`**: Easter eggs and advanced commands (not shown in help)
+```tsx
+// Terminal supports these keyboard shortcuts:
+↑ / ↓       // Navigate command history
+Tab         // Autocomplete command names
+Enter       // Execute command
+Ctrl+C      // Interrupt (visual feedback)
+Ctrl+L      // Clear screen (same as 'clear')
+```
 
-**Available Commands:**
+---
 
-- `help` - Show available commands with categories
-- `clear` - Clear terminal screen
-- `whoami` - Display user information
-- `status` - Show system status report
-- `ls` - List available sections
-- `pwd` - Print current directory
-- `home`, `about`, `projects`, `skills`, `contact` - Navigate to sections
-- `back` - Return to home section
-- `cd ..`, `cd`, `exit`, `sudo` - Hidden commands with realistic responses
+## 🔧 Real-World Examples
 
-## Types
+### Portfolio Integration
+
+```tsx
+import Terminal from '@/components/terminal'
+import { NavigationProvider } from '@/contexts/NavigationContext'
+
+function PortfolioApp() {
+  return (
+    <NavigationProvider initialContent="home">
+      <div className="grid md:grid-cols-2 h-screen">
+        <div className="portfolio-content">
+          <MainContent />
+        </div>
+        <div className="terminal-panel">
+          <Terminal />
+        </div>
+      </div>
+    </NavigationProvider>
+  )
+}
+```
+
+### Custom Terminal Output
+
+```tsx
+import { TerminalOutput } from '@/components/terminal'
+import { useSystemInfo, useTerminalCore } from '@/hooks'
+
+function CustomTerminal() {
+  const { lines, addLine } = useTerminalCore()
+  const { userIP, deviceInfo } = useSystemInfo()
+
+  // Add custom output
+  const addCustomOutput = () => {
+    addLine('output', 'Custom terminal output')
+    addLine('success', '✅ Operation completed')
+    addLine('error', '❌ Something went wrong')
+  }
+
+  return (
+    <div className="terminal-container">
+      <TerminalOutput
+        lines={lines}
+        userIP={userIP}
+        deviceInfo={deviceInfo}
+        onClick={() => console.log('Terminal clicked')}
+      />
+      <button onClick={addCustomOutput}>Add Output</button>
+    </div>
+  )
+}
+```
+
+### Command Line Interface Pattern
+
+```tsx
+import { TerminalInput } from '@/components/terminal'
+import { useCommandProcessor, useSystemInfo } from '@/hooks'
+
+function CLIInterface() {
+  const { userIP, deviceInfo } = useSystemInfo()
+  const commandProcessor = useCommandProcessor({
+    onAddLine: (type, content) => console.log(`${type}: ${content}`),
+    onClearLines: () => console.log('Clearing terminal'),
+  })
+
+  return (
+    <div className="cli-interface">
+      <div className="terminal-prompt">
+        visitor@{deviceInfo.browser}-{deviceInfo.device}:~$
+      </div>
+      <TerminalInput
+        currentInput={commandProcessor.currentInput}
+        setCurrentInput={commandProcessor.setCurrentInput}
+        commandHistory={commandProcessor.commandHistory}
+        historyIndex={commandProcessor.historyIndex}
+        setHistoryIndex={commandProcessor.setHistoryIndex}
+        executeCommand={commandProcessor.executeCommand}
+        userIP={userIP}
+        deviceInfo={deviceInfo}
+        disabled={false}
+      />
+    </div>
+  )
+}
+```
+
+### Terminal with Custom Commands
+
+```tsx
+import { getAvailableCommands, type Command } from '@/components/terminal/commands'
+
+function TerminalWithCustomCommands() {
+  const handleNavigation = (content: LeftPanelContent) => {
+    console.log(`Navigating to: ${content}`)
+  }
+
+  // Get available commands
+  const commands = getAvailableCommands(handleNavigation, 'home')
+
+  // Add custom command
+  const customCommands: Record<string, Command> = {
+    ...commands,
+    custom: {
+      description: 'Execute custom function',
+      category: 'system',
+      execute: () => ['Custom command executed!', 'This is a custom response.'],
+    },
+  }
+
+  return <Terminal /* with custom commands */ />
+}
+```
+
+### Boot Sequence Customization
+
+```tsx
+import { useTerminalCore, useSystemInfo } from '@/hooks'
+import { useEffect } from 'react'
+
+function CustomBootTerminal() {
+  const { addLine, clearLines } = useTerminalCore()
+  const { deviceInfo, userIP, isBooting } = useSystemInfo()
+
+  useEffect(() => {
+    if (!isBooting && deviceInfo.browser && userIP) {
+      // Custom boot sequence
+      const bootMessages = [
+        '🚀 Custom Portfolio Terminal v2.0',
+        '🔐 Establishing secure connection...',
+        `🌐 Connected from ${userIP}`,
+        `💻 Running on ${deviceInfo.browser}/${deviceInfo.device}`,
+        '✅ All systems operational',
+        '',
+        'Welcome to the enhanced terminal experience!',
+        'Type "help" to see available commands.',
+      ]
+
+      bootMessages.forEach((message, index) => {
+        setTimeout(() => addLine('boot', message), index * 150)
+      })
+    }
+  }, [isBooting, deviceInfo, userIP, addLine])
+
+  return <Terminal />
+}
+```
+
+---
+
+## 🎯 Advanced Patterns
+
+### Command Output Formatting
+
+```tsx
+import { TerminalOutput } from '@/components/terminal'
+
+// Advanced output formatting
+const formatAdvancedOutput = (data: any[]): TerminalLine[] => {
+  return [
+    { id: '1', type: 'output', content: '📊 System Report', timestamp: new Date() },
+    { id: '2', type: 'success', content: '├─ Status: ✅ ONLINE', timestamp: new Date() },
+    { id: '3', type: 'warning', content: '├─ Memory: ⚠️  85% used', timestamp: new Date() },
+    { id: '4', type: 'error', content: '└─ Errors: ❌ 2 found', timestamp: new Date() },
+  ]
+}
+
+function AdvancedTerminalOutput() {
+  const [lines, setLines] = useState<TerminalLine[]>([])
+
+  const generateReport = () => {
+    const reportLines = formatAdvancedOutput([])
+    setLines((prev) => [...prev, ...reportLines])
+  }
+
+  return (
+    <div>
+      <TerminalOutput lines={lines} />
+      <button onClick={generateReport}>Generate Report</button>
+    </div>
+  )
+}
+```
+
+### Real-time Command Execution
+
+```tsx
+import { useTerminalCore } from '@/hooks'
+
+function RealTimeTerminal() {
+  const { lines, addLine } = useTerminalCore()
+
+  const executeAsyncCommand = async (command: string) => {
+    addLine('command', `$ ${command}`)
+    addLine('output', 'Executing command...')
+
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      const response = await fetch(`/api/terminal/${command}`)
+      const result = await response.json()
+
+      result.output.forEach((line: string) => {
+        addLine('output', line)
+      })
+    } catch (error) {
+      addLine('error', `Error: ${error.message}`)
+    }
+  }
+
+  return <Terminal /* with async command handler */ />
+}
+```
+
+### Terminal State Persistence
+
+```tsx
+import { useTerminalCore } from '@/hooks'
+import { useEffect } from 'react'
+
+function PersistentTerminal() {
+  const { lines, addLine, clearLines } = useTerminalCore()
+
+  // Save terminal state
+  useEffect(() => {
+    const terminalState = {
+      lines: lines.slice(-100), // Keep last 100 lines
+      timestamp: new Date().toISOString(),
+    }
+    localStorage.setItem('terminal-state', JSON.stringify(terminalState))
+  }, [lines])
+
+  // Restore terminal state
+  useEffect(() => {
+    const saved = localStorage.getItem('terminal-state')
+    if (saved) {
+      try {
+        const { lines: savedLines } = JSON.parse(saved)
+        savedLines.forEach((line) => {
+          addLine(line.type, line.content)
+        })
+        addLine('boot', '📂 Terminal session restored')
+      } catch (error) {
+        addLine('warning', 'Could not restore previous session')
+      }
+    }
+  }, [addLine])
+
+  return <Terminal />
+}
+```
+
+### Custom Command Categories
+
+```tsx
+import { type Command } from '@/components/terminal/commands'
+
+function TerminalWithCustomCategories() {
+  const createCustomCommands = (): Record<string, Command> => ({
+    // Developer commands
+    debug: {
+      description: 'Toggle debug mode',
+      category: 'developer',
+      execute: () => ['Debug mode toggled', 'Use with caution in production'],
+    },
+    logs: {
+      description: 'Show application logs',
+      category: 'developer',
+      execute: () => [
+        '📝 Recent Logs:',
+        '[INFO] User navigation to projects',
+        '[WARN] Theme change detected',
+        '[ERROR] Network timeout on API call',
+      ],
+    },
+
+    // Analytics commands
+    analytics: {
+      description: 'Show usage analytics',
+      category: 'analytics',
+      execute: () => [
+        '📈 Usage Analytics:',
+        '├─ Page views: 1,234',
+        '├─ Terminal sessions: 567',
+        '├─ Commands executed: 2,890',
+        '└─ Average session: 3.5 minutes',
+      ],
+    },
+
+    // Fun commands
+    joke: {
+      description: 'Tell a programming joke',
+      category: 'fun',
+      execute: () => [
+        'Why do programmers prefer dark mode?',
+        '',
+        'Because light attracts bugs! 🐛',
+      ],
+    },
+  })
+
+  return <Terminal /* with custom command categories */ />
+}
+```
+
+---
+
+## 📦 Complete API Reference
+
+### Terminal Props
+
+```tsx
+// Terminal is the main component with no required props
+// Uses hooks internally for state management
+interface TerminalProps {
+  // Currently no external props - all state managed internally
+}
+```
+
+### TerminalOutput Props
+
+```tsx
+interface TerminalOutputProps {
+  lines: TerminalLine[]
+  userIP: string
+  deviceInfo: DeviceInfo
+  onClick: () => void
+}
+```
+
+### TerminalInput Props
+
+```tsx
+interface TerminalInputProps {
+  currentInput: string
+  setCurrentInput: (value: string) => void
+  commandHistory: string[]
+  historyIndex: number
+  setHistoryIndex: (value: number) => void
+  executeCommand: (command: string) => void
+  userIP: string
+  deviceInfo: DeviceInfo
+  disabled?: boolean
+}
+```
+
+### TerminalHeader Props
+
+```tsx
+interface TerminalHeaderProps {
+  isBooting: boolean
+}
+```
+
+### TerminalFooter Props
+
+```tsx
+interface TerminalFooterProps {
+  // No props - displays static help text
+}
+```
 
 ### Core Types
 
 ```tsx
-// Navigation content type
-export type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
 
-// Device information
-export interface DeviceInfo {
+interface DeviceInfo {
   browser: string // 'chrome', 'firefox', 'safari', etc.
   device: string // 'macos', 'windows', 'iphone', etc.
   userAgent: string // Full user agent string
 }
 
-// Terminal output line
-export interface TerminalLine {
+interface TerminalLine {
   id: string // Unique identifier
   type: 'command' | 'output' | 'error' | 'boot' | 'warning' | 'success' // Line type for styling
   content: string // Line content
   timestamp: Date // When line was created
 }
 
-// Command definition
-export interface Command {
+interface Command {
   description: string // Help text description
   execute: () => string[] // Function that returns output lines
   category: 'system' | 'navigation' | 'hidden' // Command category
 }
 ```
 
-## Styling
-
-### `constants.ts`
-
-Comprehensive styling constants organized by component:
+### Available Commands
 
 ```tsx
-export const TERMINAL_STYLES = {
-  HEADER: {
-    /* Header styles */
-  },
-  FOOTER: {
-    /* Footer styles */
-  },
-  INPUT: {
-    /* Input styles */
-  },
-  OUTPUT: {
-    /* Output styles */
-  },
-  PROMPT: {
-    /* Prompt styles */
-  },
-}
+// System Commands (shown in help)
+'help' // Show available commands with categories
+'clear' // Clear terminal screen
+'whoami' // Display current user information
+'status' // Show system status report
+'ls' // List available sections
+'pwd' // Print current working directory
 
-export const TERMINAL_COLORS = {
-  COMMAND: 'text-foreground',
-  OUTPUT: 'text-muted-foreground',
-  ERROR: 'text-red-500',
-  // ... more colors
-}
+// Navigation Commands (shown in help)
+'home' // Navigate to home section
+'about' // Navigate to about section
+'projects' // Navigate to projects section
+'skills' // Navigate to skills section
+'contact' // Navigate to contact section
+'back' // Return to home section
+
+// Hidden Commands (not shown in help)
+'sudo' // Permission denied response
+'exit' // Permission denied response
+'cd ..' // Navigate back to home
+'cd' // Show usage message
 ```
 
-## Usage
+---
 
-### Basic Implementation
+## 🚨 Common Mistakes
 
 ```tsx
-import { TerminalSection } from '@/components/terminal'
+// ❌ Wrong - Not handling device detection state
+function BadTerminal() {
+  const { deviceInfo } = useSystemInfo()
+  return <div>Device: {deviceInfo.browser}</div> // May be empty during detection
+}
 
-function MyComponent() {
-  const handleContentChange = (content: LeftPanelContent) => {
-    // Handle navigation to different sections
-    console.log('Navigate to:', content)
+// ❌ Wrong - Not waiting for boot sequence
+function BadTerminalUsage() {
+  const { isBooting } = useSystemInfo()
+  return (
+    <div>
+      <TerminalInput disabled={false} /> {/* Should be disabled during boot */}
+    </div>
+  )
+}
+
+// ❌ Wrong - Not handling command execution properly
+function BadCommandExecution() {
+  const executeCommand = (cmd: string) => {
+    // Missing error handling and line addition
+    console.log(cmd)
+  }
+  return <TerminalInput executeCommand={executeCommand} />
+}
+
+// ✅ Right - Proper state handling
+function GoodTerminal() {
+  const { deviceInfo, isBooting } = useSystemInfo()
+
+  if (isBooting || !deviceInfo.browser) {
+    return <div>Loading terminal...</div>
   }
 
-  return <TerminalSection onContentChangeAction={handleContentChange} />
+  return <Terminal />
+}
+
+// ✅ Right - Proper command execution
+function GoodTerminalUsage() {
+  const { addLine } = useTerminalCore()
+
+  const executeCommand = (cmd: string) => {
+    try {
+      addLine('command', `$ ${cmd}`)
+      // Process command and add output
+      addLine('output', 'Command executed successfully')
+    } catch (error) {
+      addLine('error', `Error: ${error.message}`)
+    }
+  }
+
+  return <TerminalInput executeCommand={executeCommand} />
 }
 ```
 
-### Integration with Interface
+## 💡 Best Practices
+
+**Component composition:**
 
 ```tsx
-// In Interface.tsx
-const [currentContent, setCurrentContent] = useState<LeftPanelContent>('home')
+// Use the main Terminal component for complete functionality
+<Terminal />
 
-const handleContentChange = (content: LeftPanelContent) => {
-  setCurrentContent(content)
-}
+// Or compose individual components for custom implementations
+<div className="custom-terminal">
+  <TerminalHeader isBooting={false} />
+  <TerminalOutput lines={lines} userIP={userIP} deviceInfo={deviceInfo} />
+  <TerminalInput {...inputProps} />
+  <TerminalFooter />
+</div>
+```
 
-return (
-  <div className="grid md:grid-cols-2 h-full">
-    <LeftSide pageTitle={currentTitle}>
-      <CurrentComponent />
-    </LeftSide>
-    <RightSide onContentChangeAction={handleContentChange} />
-  </div>
+**Command handling:**
+
+```tsx
+// Always handle command execution errors
+const executeCommand = useCallback(
+  (command: string) => {
+    try {
+      addLine('command', `$ ${command}`)
+
+      const commands = getAvailableCommands(handleNavigation, currentContent)
+      const cmd = commands[command.toLowerCase()]
+
+      if (cmd) {
+        const output = cmd.execute()
+        output.forEach((line) => addLine('output', line))
+      } else {
+        addLine('error', `Command not found: ${command}`)
+      }
+    } catch (error) {
+      addLine('error', `Error executing command: ${error.message}`)
+    }
+  },
+  [addLine, handleNavigation, currentContent],
 )
 ```
 
-## Key Features
+**Performance considerations:**
 
-### 🚀 **Realistic Terminal Experience**
+- Terminal lines are automatically managed by hooks
+- Command history is limited to prevent memory leaks
+- Device detection runs once and caches results
+- Boot sequence is protected against duplicate execution
 
-- Authentic command prompt with user@device format
-- Command history with arrow key navigation
-- Tab autocomplete for commands
-- Realistic boot sequence with device detection
+**Accessibility:**
 
-### 🎯 **Portfolio Navigation**
+- Terminal has proper ARIA labels and roles
+- Keyboard navigation is fully supported
+- Screen reader friendly with semantic HTML
+- Focus management handles input/output areas correctly
 
-- Commands map to portfolio sections
-- Smooth integration with main interface
-- Context-aware help system
+**Styling customization:**
 
-### 🎨 **Beautiful Design**
+- Use terminal constants for consistent styling
+- Leverage CSS custom properties for theming
+- Maintain terminal aesthetic with monospace fonts
+- Use semantic color coding for different output types
 
-- Syntax highlighting for different output types
-- Smooth animations and transitions
-- Consistent with overall design system
+**Integration patterns:**
 
-### ⚡ **Performance Optimized**
-
-- Direct state management (no unnecessary hooks)
-- Efficient re-renders with proper memoization
-- Minimal bundle impact
-
-### ♿ **Accessibility**
-
-- Proper ARIA labels and roles
-- Keyboard navigation support
-- Screen reader friendly
-
-## Quality Standards
-
-### ✅ **Architecture Pattern**
-
-- Constants → main export → supporting functions
-- Direct `useState` calls (no custom hooks)
-- Inline functions with `useCallback`
-
-### ✅ **TypeScript**
-
-- Comprehensive interfaces for all data structures
-- Proper type exports and imports
-- No `any` types
-
-### ✅ **Performance**
-
-- Memoized callbacks where appropriate
-- Efficient state updates
-- Minimal re-renders
-
-### ✅ **Code Quality**
-
-- Clean, readable code structure
-- Meaningful variable names
-- Consistent formatting
-
-This terminal module provides a production-ready, interactive terminal experience that seamlessly integrates with the portfolio interface while maintaining high code quality and performance standards.
+- Terminal works seamlessly with NavigationContext
+- Hooks provide clean separation of concerns
+- Command system is extensible for custom functionality
+- Boot sequence integrates with system information detection

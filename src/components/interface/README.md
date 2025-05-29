@@ -1,343 +1,616 @@
 # Interface Components
 
-This directory contains the main interface components that orchestrate the portfolio layout, following modern React patterns with guard clauses, nested arrow functions, and clean composition.
+Premium two-panel portfolio layout with smooth animations and responsive design.
 
-## Architecture Philosophy
+## 🎯 Quick Decision
 
-### **Guard Clause Pattern**
+**Need interface components?**
 
-Components use the "guard clause" or "early return" pattern to handle edge cases first, keeping the main logic path clean and readable.
+```
+├─ Complete portfolio layout? → Interface (main orchestrator)
+├─ Left content panel? → LeftSide
+├─ Right terminal panel? → RightSide
+└─ Custom two-panel layout? → Combine LeftSide + RightSide
+```
 
-### **Nested Arrow Functions**
-
-Tightly coupled functionality is encapsulated within the main component using nested arrow functions, ensuring better encapsulation and reducing unnecessary abstractions.
-
-### **Component Ordering**
-
-- Constants and configuration first
-- Main exported function
-- Supporting functions in execution order
-
-## Components
-
-### `Interface.tsx`
-
-The main orchestrator component that creates the premium Apple-style container and manages the two-panel layout.
-
-**Architecture:**
+## 🚀 Quick Start
 
 ```tsx
-// Constants first
-const CONTAINER_CONFIG = {
-  HEIGHT: 'h-[800px]',
-  MAX_WIDTH: 'max-w-7xl',
-  // ... more config
-} as const
+import Interface from '@/components/interface'
 
-// Main export
-export default function Interface({ className, pageTitle }: InterfaceProps = {}) {
-  // Nested component for container card
-  const ContainerCard = () => (/* card JSX */)
-
-  return <main>...</main>
-}
-```
-
-**Props:**
-
-- `className?: string` - Custom CSS classes for styling
-- `pageTitle?: string` - Title for the left panel (default: 'Home')
-
-**Features:**
-
-- **Premium Design**: Apple-style container with subtle borders and shadows
-- **Responsive Layout**: Two-panel grid that adapts to screen size
-- **Clean Architecture**: Extracted constants and nested components
-- **TypeScript**: Full type safety with comprehensive interfaces
-- **Semantic HTML**: Proper main and section elements for accessibility
-
-### `LeftSide.tsx`
-
-The left panel component that displays content with sophisticated animations and a premium header.
-
-**Architecture:**
-
-```tsx
-// Constants first
-const ANIMATION_CONFIG = {
-  DURATION: { HEADER: 0.6, CONTENT: 0.8, CONTAINER: 0.6 },
-  DELAYS: { HEADER: 0.1, ICON: 0.2, TITLE: 0.3 },
-  // ... more config
-} as const
-
-// Animation variants
-const headerVariants = { ... }
-const contentVariants = { ... }
-
-// Main export
-export default function LeftSide({ children, pageTitle }: LeftSideProps) {
-  // Guard clause for missing children
-  if (!children) return <ErrorState />
-
-  // Nested header component
-  const LeftSideHeader = ({ pageTitle, icon }: LeftSideHeaderProps) => (/* header JSX */)
-
-  return <motion.div>...</motion.div>
-}
-```
-
-**Props:**
-
-- `children: React.ReactNode` - Content to display in the panel
-- `pageTitle?: string` - Title for the header (default: 'Home')
-- `transitionKey?: string` - Key for AnimatePresence transitions
-- `className?: string` - Custom CSS classes
-
-**Features:**
-
-- **Sophisticated Animations**: Smooth transitions with Framer Motion
-- **Guard Clauses**: Proper error handling for missing content
-- **Nested Components**: Header component encapsulated within main component
-- **Performance Optimized**: Simplified animation variants for better performance
-- **Accessibility**: Proper ARIA attributes and semantic structure
-- **Premium Styling**: Gradient backgrounds and enhanced separators
-
-### `RightSide.tsx`
-
-The right panel component that houses the terminal interface with elegant styling.
-
-**Architecture:**
-
-```tsx
-// Constants first
-const CONTAINER_STYLES = {
-  MAIN: 'relative h-full bg-gradient-to-bl...',
-  DEPTH_OVERLAY: 'absolute inset-0 bg-gradient-to-br...',
-  // ... more styles
-} as const
-
-// Main export
-export default function RightSide({ onContentChangeAction }: RightSideProps) {
-  // Guard clause for missing handler
-  if (!onContentChangeAction) return <ErrorState />
-
-  // Nested terminal container
-  const TerminalContainer = () => (/* terminal JSX */)
-
-  return <div>...</div>
-}
-```
-
-**Props:**
-
-- `onContentChangeAction: () => void` - Handler for terminal navigation
-- `className?: string` - Custom CSS classes
-
-**Features:**
-
-- **Error Resilience**: Guard clauses for missing required props
-- **Nested Components**: Terminal container encapsulated within main component
-- **Premium Styling**: Gradient backgrounds with depth indicators
-- **TypeScript**: Exported interfaces for external use
-- **Clean Architecture**: Extracted styling constants
-
-## Shared Dependencies
-
-### Animation System
-
-Components use consistent animation patterns:
-
-- **Simplified Variants**: Removed complex 3D transforms for better performance
-- **Consistent Timing**: Shared duration and delay configurations
-- **Accessibility**: Respects user motion preferences
-- **Smooth Transitions**: AnimatePresence for content changes
-
-### Styling System
-
-- **Gradient Backgrounds**: Consistent depth and visual hierarchy
-- **Border Enhancements**: Multi-layer separators for premium feel
-- **Responsive Design**: Mobile-first approach with breakpoints
-- **Design Tokens**: Extracted constants for maintainability
-
-## Best Practices Implemented
-
-### **1. Guard Clause Pattern**
-
-```tsx
-// ❌ Avoid nested conditionals
-return children ? <Content>{children}</Content> : <EmptyState />
-
-// ✅ Use guard clauses
-if (!children) return <EmptyState />
-return <Content>{children}</Content>
-```
-
-### **2. Nested Arrow Functions**
-
-```tsx
-export default function LeftSide() {
-  // Tightly coupled logic stays nested
-  const LeftSideHeader = ({ pageTitle }: HeaderProps) => {
-    if (!pageTitle) return null // Guard clause
-    return <header>{pageTitle}</header>
-  }
-
-  return (
-    <div>
-      <LeftSideHeader pageTitle={title} />
-    </div>
-  )
-}
-```
-
-### **3. Proper Code Ordering**
-
-```tsx
-// 1. Constants and configuration
-const ANIMATION_CONFIG = { ... }
-const CONTAINER_STYLES = { ... }
-
-// 2. Animation variants
-const headerVariants = { ... }
-
-// 3. Main exported function
-export default function Component() {}
-```
-
-### **4. Performance Considerations**
-
-- **Extracted Constants**: Animation variants defined at module level
-- **Simplified Animations**: Removed unnecessary 3D transforms and filters
-- **Efficient Re-renders**: Proper dependency management
-- **Clean Transitions**: Optimized AnimatePresence usage
-
-### **5. Error Handling**
-
-- **Guard Clauses**: Handle missing props gracefully
-- **Fallback States**: Meaningful error messages for debugging
-- **Console Warnings**: Development-time feedback for missing props
-- **Graceful Degradation**: Components still render with basic functionality
-
-## File Structure
-
-```
-interface/
-├── Interface.tsx        # Main orchestrator component
-├── LeftSide.tsx        # Left panel with animations
-├── RightSide.tsx       # Right panel with terminal
-├── index.ts           # Barrel exports
-└── README.md          # This documentation
-```
-
-## Component Hierarchy
-
-```
-Interface (Main Container)
-├── ContainerCard (nested)
-│   ├── LeftSide
-│   │   ├── LeftSideHeader (nested)
-│   │   └── AnimatePresence
-│   │       └── Content
-│   └── RightSide
-│       └── TerminalContainer (nested)
-│           └── TerminalSection
-```
-
-## Usage Examples
-
-### Basic Usage
-
-```tsx
-import { Interface } from '@/components/interface'
-
-export default function HomePage() {
+// Complete portfolio interface
+function Portfolio() {
   return <Interface />
 }
-```
 
-### Custom Page Title
-
-```tsx
-import { Interface } from '@/components/interface'
-
-export default function ProjectsPage() {
-  return <Interface pageTitle="Projects" />
+// With custom initial section
+function CustomPortfolio() {
+  return <Interface initialContent="projects" />
 }
 ```
 
-### Individual Components
+## 📊 Component Overview
+
+| Component     | Purpose                  | Key Features                             |
+| ------------- | ------------------------ | ---------------------------------------- |
+| **Interface** | Main layout orchestrator | Navigation provider, error boundaries    |
+| **LeftSide**  | Content display panel    | Animations, header, responsive scrolling |
+| **RightSide** | Terminal interface panel | Terminal integration, premium styling    |
+
+---
+
+## 📋 Common Patterns
+
+### Basic Interface
+
+```tsx
+import Interface from '@/components/interface'
+
+// Full portfolio with all sections
+<Interface />
+
+// Start on specific section
+<Interface initialContent="about" />
+
+// Custom styling
+<Interface className="border-2 border-primary" />
+```
+
+### Individual Panels
 
 ```tsx
 import { LeftSide, RightSide } from '@/components/interface'
 
-export default function CustomLayout() {
-  const handleContentChange = () => console.log('Navigation requested')
+// Left panel with content
+<LeftSide pageTitle="Projects">
+  <ProjectsContent />
+</LeftSide>
+
+// Right panel with terminal
+<RightSide />
+
+// Custom layout composition
+<div className="grid md:grid-cols-2 h-screen">
+  <LeftSide pageTitle="Custom">
+    <CustomContent />
+  </LeftSide>
+  <RightSide />
+</div>
+```
+
+### Content Sections
+
+```tsx
+// Available sections (automatically handled by Interface)
+'home' // Main portfolio landing
+'about' // Personal background
+'projects' // Featured work
+'skills' // Technical expertise
+'contact' // Contact information
+```
+
+---
+
+## 🔧 Real-World Examples
+
+### Portfolio Application
+
+```tsx
+import Interface from '@/components/interface'
+import { NavigationProvider } from '@/contexts/NavigationContext'
+
+function PortfolioApp() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Interface initialContent="home" />
+    </div>
+  )
+}
+
+// Interface automatically provides NavigationProvider
+// No need to wrap manually
+```
+
+### Custom Section Content
+
+```tsx
+import { LeftSide } from '@/components/interface'
+import { motion } from 'framer-motion'
+
+function CustomSection() {
+  return (
+    <LeftSide pageTitle="Custom" transitionKey="custom-section">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="space-y-6"
+      >
+        <h1 className="text-3xl font-bold">Custom Section</h1>
+        <p className="text-muted-foreground">Custom content with smooth animations</p>
+        <div className="grid gap-4">
+          <CustomCard title="Feature 1" />
+          <CustomCard title="Feature 2" />
+        </div>
+      </motion.div>
+    </LeftSide>
+  )
+}
+```
+
+### Mobile-Responsive Layout
+
+```tsx
+import { LeftSide, RightSide } from '@/components/interface'
+import { useState } from 'react'
+
+function ResponsiveInterface() {
+  const [showTerminal, setShowTerminal] = useState(false)
 
   return (
-    <div className="grid md:grid-cols-2 h-screen">
-      <LeftSide pageTitle="Custom">
-        <div>Custom content</div>
-      </LeftSide>
-      <RightSide onContentChangeAction={handleContentChange} />
+    <div className="h-screen">
+      {/* Mobile: Stack panels */}
+      <div className="md:hidden">
+        {showTerminal ? (
+          <div className="h-full">
+            <button onClick={() => setShowTerminal(false)}>Back to Content</button>
+            <RightSide />
+          </div>
+        ) : (
+          <div className="h-full">
+            <LeftSide pageTitle="Portfolio">
+              <MobileContent />
+            </LeftSide>
+            <button onClick={() => setShowTerminal(true)}>Open Terminal</button>
+          </div>
+        )}
+      </div>
+
+      {/* Desktop: Side by side */}
+      <div className="hidden md:grid md:grid-cols-2 h-full">
+        <LeftSide pageTitle="Portfolio">
+          <DesktopContent />
+        </LeftSide>
+        <RightSide />
+      </div>
     </div>
   )
 }
 ```
 
-### With Custom Styling
+### Content with Navigation Integration
 
 ```tsx
-import { Interface } from '@/components/interface'
+import { LeftSide } from '@/components/interface'
+import { useNavigation } from '@/contexts/NavigationContext'
 
-export default function StyledInterface() {
-  return <Interface className="border-2 border-primary" pageTitle="Portfolio" />
+function NavigationAwareContent() {
+  const { currentContent, navigateTo } = useNavigation()
+
+  return (
+    <LeftSide pageTitle={currentContent} transitionKey={currentContent}>
+      <div className="space-y-6">
+        <nav className="flex gap-2">
+          {['home', 'about', 'projects', 'skills', 'contact'].map((section) => (
+            <button
+              key={section}
+              onClick={() => navigateTo(section)}
+              className={`px-3 py-1 rounded ${
+                currentContent === section ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              }`}
+            >
+              {section}
+            </button>
+          ))}
+        </nav>
+
+        <div className="content-area">
+          {currentContent === 'home' && <HomeContent />}
+          {currentContent === 'about' && <AboutContent />}
+          {currentContent === 'projects' && <ProjectsContent />}
+          {currentContent === 'skills' && <SkillsContent />}
+          {currentContent === 'contact' && <ContactContent />}
+        </div>
+      </div>
+    </LeftSide>
+  )
 }
 ```
 
-## Dependencies
+### Error Boundary Integration
 
-- `framer-motion` - Smooth animations and transitions
-- `lucide-react` - Icon components (Home)
-- `react` - Core React functionality
-- Custom UI components from `@/components/ui` (Button, Card)
-- Terminal components from `@/components/terminal`
-- Home components from `@/components/home`
+```tsx
+import { LeftSide } from '@/components/interface'
+import { ErrorBoundary } from '@/components/error'
 
-## Performance & Accessibility
+function SafeInterface() {
+  return (
+    <div className="grid md:grid-cols-2 h-screen">
+      <ErrorBoundary variant="left" pageTitle="Safe Content">
+        <LeftSide pageTitle="Safe Content">
+          <PotentiallyFaultyContent />
+        </LeftSide>
+      </ErrorBoundary>
 
-- **Motion Preferences**: All animations respect `prefers-reduced-motion`
-- **Type Safety**: Full TypeScript support with exported interfaces
-- **WCAG Compliance**: Proper ARIA attributes and semantic HTML
-- **Mobile-First**: Responsive design with touch-friendly interactions
-- **Error Handling**: Graceful fallbacks for missing content
-- **Optimized Rendering**: Guard clauses prevent unnecessary renders
-- **Clean Animations**: Simplified variants for better performance
+      <ErrorBoundary variant="right">
+        <RightSide />
+      </ErrorBoundary>
+    </div>
+  )
+}
+```
 
-## Integration with Design System
+---
 
-The interface components integrate seamlessly with the existing design system:
+## 🎯 Advanced Patterns
 
-- **Card Component**: Uses the shared Card component for consistent styling
-- **Button Component**: Consistent button variants and interactions
-- **Color Tokens**: Respects CSS custom properties for theming
-- **Animation Patterns**: Follows established motion design principles
-- **Spacing**: Consistent with design system spacing tokens
-- **Typography**: Inherits proper font families and sizing
+### Custom Animation Sequences
 
-## Testing Considerations
+```tsx
+import { LeftSide } from '@/components/interface'
+import { motion, useAnimation } from 'framer-motion'
+import { useEffect } from 'react'
 
-The component structure supports comprehensive testing:
+function AnimatedInterface() {
+  const controls = useAnimation()
 
-- **Unit Tests**: Clean separation of concerns enables isolated testing
-- **Integration Tests**: Components can be tested with different content
-- **Animation Tests**: Motion variants and reduced motion support
-- **Accessibility Tests**: ARIA attributes and keyboard navigation
-- **Error Handling Tests**: Guard clauses and fallback states
+  useEffect(() => {
+    const sequence = async () => {
+      await controls.start({ opacity: 1, y: 0 })
+      await controls.start({ scale: 1.02 })
+      await controls.start({ scale: 1 })
+    }
+    sequence()
+  }, [controls])
 
-## Browser Support
+  return (
+    <LeftSide pageTitle="Animated">
+      <motion.div animate={controls} initial={{ opacity: 0, y: 20 }} className="space-y-6">
+        <div className="grid gap-4">
+          {[1, 2, 3].map((item, index) => (
+            <motion.div
+              key={item}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+              className="p-4 bg-card rounded-lg"
+            >
+              Item {item}
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    </LeftSide>
+  )
+}
+```
 
-- **Modern Browsers**: Full support for ES2020+ features
-- **Progressive Enhancement**: Graceful degradation for older browsers
-- **CSS Grid**: Modern layout with fallbacks
-- **Framer Motion**: Hardware-accelerated animations
-- **Responsive Design**: Mobile-first approach with breakpoints
+### Dynamic Content Loading
+
+```tsx
+import { LeftSide } from '@/components/interface'
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+
+function DynamicInterface() {
+  const [content, setContent] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadContent = async () => {
+      setLoading(true)
+      try {
+        // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000))
+        const data = await fetchContentData()
+        setContent(data)
+      } catch (error) {
+        console.error('Failed to load content:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadContent()
+  }, [])
+
+  return (
+    <LeftSide pageTitle="Dynamic Content" transitionKey={loading ? 'loading' : 'loaded'}>
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div
+            key="loading"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="flex items-center justify-center h-32"
+          >
+            <div className="animate-pulse">Loading content...</div>
+          </motion.div>
+        ) : (
+          <motion.div
+            key="content"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            {content?.map((item, index) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: index * 0.1 }}
+              >
+                {item.content}
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </LeftSide>
+  )
+}
+```
+
+### Custom Layout Compositions
+
+```tsx
+import { LeftSide, RightSide } from '@/components/interface'
+import { Card } from '@/components/ui'
+
+function CustomLayoutInterface() {
+  return (
+    <div className="min-h-screen p-4">
+      <Card className="h-[800px] max-w-7xl mx-auto overflow-hidden">
+        {/* Three-panel layout */}
+        <div className="grid grid-cols-3 h-full">
+          {/* Main content */}
+          <div className="col-span-2">
+            <LeftSide pageTitle="Extended Content">
+              <div className="grid grid-cols-2 gap-6 h-full">
+                <div className="space-y-4">
+                  <h2>Left Column</h2>
+                  <LeftContent />
+                </div>
+                <div className="space-y-4">
+                  <h2>Right Column</h2>
+                  <RightContent />
+                </div>
+              </div>
+            </LeftSide>
+          </div>
+
+          {/* Terminal sidebar */}
+          <div className="border-l border-border">
+            <RightSide />
+          </div>
+        </div>
+      </Card>
+    </div>
+  )
+}
+```
+
+### Performance Optimized Interface
+
+```tsx
+import { LeftSide, RightSide } from '@/components/interface'
+import { memo, useMemo, lazy, Suspense } from 'react'
+
+// Lazy load heavy components
+const HeavyContent = lazy(() => import('./HeavyContent'))
+
+const OptimizedLeftSide = memo(function OptimizedLeftSide({ pageTitle, children }) {
+  return (
+    <LeftSide pageTitle={pageTitle} transitionKey={pageTitle}>
+      {children}
+    </LeftSide>
+  )
+})
+
+const OptimizedRightSide = memo(function OptimizedRightSide() {
+  return <RightSide />
+})
+
+function PerformantInterface() {
+  const memoizedContent = useMemo(
+    () => (
+      <div className="space-y-6">
+        <h1>Optimized Content</h1>
+        <Suspense fallback={<div>Loading heavy content...</div>}>
+          <HeavyContent />
+        </Suspense>
+      </div>
+    ),
+    [],
+  )
+
+  return (
+    <div className="grid md:grid-cols-2 h-screen">
+      <OptimizedLeftSide pageTitle="Performance">{memoizedContent}</OptimizedLeftSide>
+      <OptimizedRightSide />
+    </div>
+  )
+}
+```
+
+---
+
+## 📦 Complete API Reference
+
+### Interface Props
+
+```tsx
+interface InterfaceProps {
+  className?: string // Custom CSS classes
+  initialContent?: LeftPanelContent // Starting section (default: 'home')
+}
+```
+
+### LeftSide Props
+
+```tsx
+interface LeftSideProps {
+  children: React.ReactNode // Content to display
+  pageTitle?: string // Header title (default: 'Home')
+  transitionKey?: string // Key for AnimatePresence transitions
+  className?: string // Custom CSS classes
+}
+```
+
+### RightSide Props
+
+```tsx
+interface RightSideProps {
+  className?: string // Custom CSS classes
+  // No other props - integrates with NavigationContext automatically
+}
+```
+
+### Content Types
+
+```tsx
+type LeftPanelContent = 'home' | 'about' | 'projects' | 'skills' | 'contact'
+
+// Content mapping (internal to Interface component)
+interface ContentMap {
+  [K in LeftPanelContent]: {
+    component: React.ComponentType
+    title: string
+  }
+}
+```
+
+### Animation Variants
+
+```tsx
+// Internal animation configurations
+interface AnimationConfig {
+  headerVariants: Variants
+  iconVariants: Variants
+  titleVariants: Variants
+  contentVariants: Variants
+}
+
+// Styling constants
+interface ContainerStyles {
+  MAIN: string
+  CONTENT_WRAPPER: string
+  HEADER: string
+  // ... more style constants
+}
+```
+
+---
+
+## 🚨 Common Mistakes
+
+```tsx
+// ❌ Wrong - Using LeftSide without children
+function BadUsage() {
+  return <LeftSide pageTitle="Empty" /> // Missing children
+}
+
+// ❌ Wrong - Not providing transitionKey for content changes
+function BadTransitions() {
+  const [content, setContent] = useState('home')
+  return <LeftSide pageTitle={content}>{content === 'home' ? <Home /> : <About />}</LeftSide>
+}
+
+// ❌ Wrong - Manual NavigationProvider wrapping
+function BadProviderUsage() {
+  return (
+    <NavigationProvider>
+      {' '}
+      {/* Interface already provides this */}
+      <Interface />
+    </NavigationProvider>
+  )
+}
+
+// ✅ Right - Proper children usage
+function GoodUsage() {
+  return (
+    <LeftSide pageTitle="Content">
+      <div>Meaningful content here</div>
+    </LeftSide>
+  )
+}
+
+// ✅ Right - Proper transition keys
+function GoodTransitions() {
+  const [content, setContent] = useState('home')
+  return (
+    <LeftSide pageTitle={content} transitionKey={content}>
+      {content === 'home' ? <Home /> : <About />}
+    </LeftSide>
+  )
+}
+
+// ✅ Right - Use Interface directly
+function GoodProviderUsage() {
+  return <Interface initialContent="home" />
+}
+```
+
+## 💡 Best Practices
+
+**Component composition:**
+
+```tsx
+// Use Interface for complete functionality
+<Interface initialContent="projects" />
+
+// Or compose individual components for custom layouts
+<div className="custom-layout">
+  <LeftSide pageTitle="Custom">
+    <CustomContent />
+  </LeftSide>
+  <RightSide />
+</div>
+```
+
+**Content transitions:**
+
+```tsx
+// Always provide transitionKey for smooth animations
+<LeftSide pageTitle={currentSection} transitionKey={currentSection}>
+  <DynamicContent />
+</LeftSide>
+
+// Use meaningful transition keys for different content states
+<LeftSide pageTitle="Loading" transitionKey={isLoading ? 'loading' : 'loaded'}>
+  {isLoading ? <LoadingState /> : <ContentState />}
+</LeftSide>
+```
+
+**Performance considerations:**
+
+- Interface automatically manages navigation state
+- LeftSide animations respect reduced motion preferences
+- Content is rendered only when needed through conditional rendering
+- Error boundaries protect against content failures
+- Responsive grid layout adapts to screen sizes
+
+**Accessibility:**
+
+- Interface uses semantic HTML (main, section, header elements)
+- LeftSide includes proper ARIA attributes and heading structure
+- Keyboard navigation works throughout the interface
+- Focus management handles content transitions
+- Screen reader friendly with descriptive page titles
+
+**Styling customization:**
+
+- Use consistent design tokens from the theme system
+- Leverage CSS custom properties for dynamic theming
+- Maintain responsive grid layout patterns
+- Use the Card component for consistent container styling
+- Follow gradient and border enhancement patterns
+
+**Integration patterns:**
+
+- Interface works seamlessly with NavigationContext
+- Error boundaries provide resilient component trees
+- Terminal integration happens automatically in RightSide
+- Content sections can be easily extended or customized
+- Animation system is consistent across all panels
